@@ -1,61 +1,95 @@
-# Edge Cluster Multi-Layer Setup using Bash Scripts  
-
+# Edge Cluster Multi-Layer Setup using Bash Scripts
 
 
 ### Virtual Machine Configuration 
 
-
-
-•	**3 Ubuntu 18.04 VMs, one for cloud-core, two for edge-core.**   
+•	**3 Ubuntu 18.04 VMs, one for cloud-core, two for edge-core.**
 •	Open the port of 10000 and 10002 in the security group of the cloud-core machine and edge-core machine   
-•	16 GB RAM, 16 vCPUs, 128 GB storage.    
+•	EC2 Instance: `t3.2xlarge, 128 GB Storage.`
 
-####     Machine 1: Cloud Core Node 
-####     Machine 2: Edge Node with Control Plane 
-####     Machine 3: Edge Worker Node
+####    Host Machine 1: Cloud Core Node (Root Operator)
+####    Host Machine 2: Cloud Core And Edge Core Node
+####    Host Machine 3: Edge Core Worker Node
 
+### A Step-by-Step Process for Setting up all Machines (For AWS EC2 Instances)
+
+- **Step 1.1:  Switch to ROOT user:**
+
+```bash
+sudo su
+```
+- **Step 1.2: Run the following command on all the Three Host Machines only after switching to 'root' user**
+
+```bash
+cat /home/ubuntu/.ssh/authorized_keys  > /root/.ssh/authorized_keys
+```
+
+- **Step 1.3: Create project folder and Clone the Fornax Repository**
+
+```bash
+mkdir -p /root/go/src/github.com
+cd /root/go/src/github.com
+git clone https://github.com/click2cloud-alpha-p/fornax.git
+```
+## Run the scripts:
+
+### For Host Machine 1:
+
+- **Step 2.1: Create an empty file with extension `.pem`  in host-1 & Update the `.pem` file by copying the host-2 & host-3 `aws-keypair` (keypair which was generated while launching the instance-2 and instance-3) file content & paste it to the empty `.pem` files :**
+
+```bash
+touch aws-keypair-2.pem
+vi  aws-keypair-2.pem
+```
+```bash
+touch aws-keypair-3.pem
+vi  aws-keypair-3.pem
+```
+- **Step 2.2: Run the command**
+```bash
+sudo bash fornax/scripts/host_1.sh
+```
+- **Step 2.3: Input the Private IP's of Hosts and keypair path:**
+
+   ![image](https://user-images.githubusercontent.com/95343388/154034770-7a8028ee-6ebc-42b7-ae2c-ac254a3f256b.png)
    
-### NOTE: 'prerequisite_package.sh' contains all the required packages for creating Kubernetes Cluster.
+
+### For Host Machine 2: (Run the script only after successfully running the Machine-1 script)
+
+- **Step 3.1: Create an empty file with extension `.pem` in host-2 & Update the `.pem` file by copying host-3 `aws-keypair` (keypair which was generated while launching the instance-3) file content & paste it to the empty `.pem` file :**
+```bash
+touch aws-keypair-3.pem
+vi aws-keypair-3.pem
+```
+- **Step 3.2: Run the command**
+```bash
+sudo bash fornax/scripts/host_2.sh
+```
+- **Step 3.3: Input the Private IP of host-3 and keypair path:**
+
+![image](https://user-images.githubusercontent.com/95343388/154036039-54dd826a-9328-42ad-9447-25fe66ae4f19.png)    
+
+### For Host Machine 3: (Run the script only after successfully running the Machine-2 script)
+
+- **Step 4: Run the command**
+
+```bash
+sudo bash fornax/scripts/host_3.sh
+```
+
+**Note:  `prerequisite_packages.sh` contains all the required packages for creating Kubernetes Cluster.**
 
 
-   
-#### Run the Scripts:
+#### Verify the Edge cluster by running command in Host Machine 1:
 
+```bash
+kubectl get edgecluster
+```
+  ![image](https://user-images.githubusercontent.com/95343388/154036219-3314f23a-1828-4598-afa2-9c4cada412c7.png) 
 
-       sudo bash cloudcore_node.sh                  (Run in machine-1)
-       sudo bash edgecore_control_plane.sh          (Run in machine 2)  (run the script only after successfully running the machine-1 script)
-       sudo bash edge_worker_node.sh                (Run in machine 3)  (run the script only after successfully running the machine-2 script)
-
-
-#### Input the Private IP's and Password of Machine 1, Machine 2 and Machine 3 :
-
-
- **For Machine 1**
-       
-   ![image](https://user-images.githubusercontent.com/95343388/152158030-2d2a26e9-71e9-4abd-8f04-0330424a32f6.png)
-
-   
- **For Machine 2**
- 
- 
-   ![image](https://user-images.githubusercontent.com/95343388/152291760-fffbe61f-3158-4f3f-b225-e805c608849c.png)
-
-   
-
-#### Verify the Edge cluster by running command in 'Cloud Core Node' (Machine-1):
-
-
-       kubectl get edgecluster
-       
-       
-       
-  ![image](https://user-images.githubusercontent.com/95343388/152162045-d6143680-14eb-470c-89c6-6f4a21e54414.png)
-
-           
-           
-           
 #### To see Cloudcore & Edgecore logs:
-
-       cd $HOME/go/src/github.com/fornax
-       cat cloudcore.logs
-       cat edgecore.logs
+```bash
+cd $HOME/go/src/github.com/fornax
+cat cloudcore.logs
+cat edgecore.logs
+```

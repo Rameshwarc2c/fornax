@@ -10,9 +10,9 @@ source "${DIR}/prerequisite_packages.sh"
 fi
 
 pushd $HOME
-echo '*****SETTING UP THE HOSTNAME NODE-C*****'
+echo -e "## SETTING UP THE HOSTNAME NODE-C\n"
 sudo hostnamectl set-hostname node-c
-echo '*****DISABLING FIREWALL*****'
+echo -e "## DISABLING FIREWALL\n"
 sudo ufw disable
 sudo swapoff -a
 
@@ -27,28 +27,18 @@ edgecore_process(){
 }
 
 fornax_setup_vm_3(){
-    echo '*****FORNAX CONFIGURATION*****'
-    mkdir -p $HOME/go/src/github.com/
-    pushd $HOME/go/src/github.com/
-    if [ "$(ls $HOME/go/src/github.com/)" == "" ]
-    then
-      git clone https://github.com/CentaurusInfra/fornax.git
-    else
-      sudo rm -rf fornax && git clone https://github.com/CentaurusInfra/fornax.git
-    fi
+    echo -e "## FORNAX CONFIGURATION\n"
     pushd $HOME/go/src/github.com/fornax
-    systemctl restart docker
     cp $HOME/machine_2_admin_file/admin.conf $HOME/go/src/github.com/fornax
     chmod a+x Makefile
     make all
     make WHAT=edgecore
     mkdir /etc/kubeedge/config -p
-    echo 'SETTING UP THE EDGECORE'
+    echo -e "## SETTING UP THE EDGECORE"
     sudo cp /etc/kubernetes/admin.conf $HOME/edgecluster.kubeconfig
     _output/local/bin/edgecore --edgeclusterconfig > /etc/kubeedge/config/edgecore.yaml
-    sed -i 's+RANDFILE+#RANDFILE+g' /etc/ssl/openssl.cnf
     tests/edgecluster/hack/update_edgecore_config.sh admin.conf
-    echo 'APPLYING DEVICES.YAML'
+    echo -e "## APPLYING DEVICES.YAML"
     kubectl apply -f build/crds/devices/devices_v1alpha2_device.yaml
     kubectl apply -f build/crds/devices/devices_v1alpha2_devicemodel.yaml
     kubectl apply -f build/crds/reliablesyncs/cluster_objectsync_v1alpha1.yaml
@@ -58,10 +48,8 @@ fornax_setup_vm_3(){
     kubectl apply -f build/crds/edgecluster/mission_v1.yaml
     kubectl apply -f build/crds/edgecluster/edgecluster_v1.yaml
     chmod 777 $HOME/go/src/github.com/fornax/_output/local/bin/kubectl/vanilla/kubectl
-    export KUBECONFIG=/etc/kubernetes/admin.conf
     nohup _output/local/bin/edgecore --edgecluster >> edgecore.logs 2>&1 &
 }
-
 edgecore_process
 
 ip_tables
@@ -75,7 +63,7 @@ kube_cluster
 golang_tools
 
 fornax_setup_vm_3
-
-echo '*****SETUP SUCCESSSFUL*****' 
-echo 'Logs: '
-echo 'Edgecore: $HOME/go/src/github.com/fornax/edgecore.logs'
+echo -e "## SETUP SUCCESSSFUL\n"
+echo -e "## Edgecore Logs: $HOME/go/src/github.com/fornax/edgecore.logs\n"
+echo -e "To start using your cluster, Please Run the command:\n"
+echo -e "export KUBECONFIG=/etc/kubernetes/admin.conf\n"
