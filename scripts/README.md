@@ -35,7 +35,7 @@ git clone https://github.com/click2cloud-alpha-p/fornax.git
 
 ### For Host Machine 1:
 
-- **Step 2.1: Create an empty file with extension `.pem`  in host-1 & Update the `.pem` file by copying the host-2 & host-3 `aws-keypair` (keypair which was generated while launching the instance-2 and instance-3) file content & paste it to the empty `.pem` files :**
+- **Step 2.1: Create two empty file(like aws-keypair-2.pem and aws-keypair-3.pem)  with extension `.pem`  in host-1  & Update these `.pem` files by copying the content of host-2 & host-3 `aws-keypair` `.pem` (keypair which was generated while launching the instance-2 and instance-3) files respectively:**
 
 ```bash
 touch aws-keypair-2.pem
@@ -56,7 +56,7 @@ sudo bash fornax/scripts/host_1.sh
 
 ### For Host Machine 2: (Run the script only after successfully running the Machine-1 script)
 
-- **Step 3.1: Create an empty file with extension `.pem` in host-2 & Update the `.pem` file by copying host-3 `aws-keypair` (keypair which was generated while launching the instance-3) file content & paste it to the empty `.pem` file :**
+- **Step 3.1: Create an empty file with extension `.pem` in host-2 & Update that `.pem` file by copying the content of host-3 `aws-keypair` `.pem` file (keypair which was generated while launching the instance-3) :**
 ```bash
 touch aws-keypair-3.pem
 vi aws-keypair-3.pem
